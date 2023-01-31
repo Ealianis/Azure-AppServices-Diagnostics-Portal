@@ -492,6 +492,18 @@
          },
          {
             "service": "ResourceService",
+            "resourceType": "Microsoft.ContainerService/fleets",
+            "templateFileName": "KubernetesFleetManager",
+            "imgSrc": "assets/img/Azure-Kubernetes-FleetManager-Logo.png",
+            "versionPrefix": "",
+            "azureCommImpactedServicesList": "",
+            "pesId": "16450",
+            "staticSelfHelpContent": "microsoft.containerservice",
+            "searchSuffix": "AZURE KUBERNETES FLEET MANAGER",
+            "displayName": "Azure Kubernetes Fleet Manager"
+        },
+         {
+            "service": "ResourceService",
             "resourceType": "Microsoft.Media/mediaservices",
             "templateFileName": "MediaService",
             "imgSrc": "assets/img/Azure-MediaService-Logo.png",
