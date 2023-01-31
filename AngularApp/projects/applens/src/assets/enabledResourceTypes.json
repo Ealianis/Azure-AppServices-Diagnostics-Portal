@@ -98,7 +98,7 @@
             "templateFileName": "KubernetesFleetManager",
             "imgSrc": "assets/img/Azure-Kubernetes-FleetManager-Logo.png",
             "versionPrefix": "",
-            "azureCommImpactedServicesList": "",
+            "azureCommImpactedServicesList": "Azure Kubernetes Fleet Manager",
             "pesId":"17929",
             "staticSelfHelpContent": "microsoft.containerservice",
             "searchSuffix": "AZURE KUBERNETES FLEET MANAGER",

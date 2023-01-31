@@ -1,4 +1,4 @@
-private static string GetQuery(OperationContext<AzureKubernetesFleetManager> cxt)
+private static string GetQuery(OperationContext<ArmResource> cxt)
 {
     return
     $@"
@@ -9,9 +9,9 @@ private static string GetQuery(OperationContext<AzureKubernetesFleetManager> cxt
         | <YOUR_QUERY>";
 }
 
-[AzureKubernetesFleetManagerFilter]
+[ArmResourceFilter(provider: "Microsoft.ContainerService", resourceTypeName: "fleets")]
 [Definition(Id = "<YOUR_DETECTOR_ID>", Name = "", Author = "<YOUR_ALIAS>", Description = "")]
-public async static Task<Response> Run(DataProviders dp, OperationContext<AzureKubernetesFleetManager> cxt, Response res)
+public async static Task<Response> Run(DataProviders dp, OperationContext<ArmResource> cxt, Response res)
 {
     res.Dataset.Add(new DiagnosticData()
     {
