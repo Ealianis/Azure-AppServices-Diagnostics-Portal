@@ -94,6 +94,18 @@
         },
         {
             "service": "ResourceService",
+            "resourceType": "Microsoft.ContainerService/fleets",
+            "templateFileName": "KubernetesFleetManager",
+            "imgSrc": "assets/img/Azure-Kubernetes-FleetManager-Logo.png",
+            "versionPrefix": "",
+            "azureCommImpactedServicesList": "",
+            "pesId":"17929",
+            "staticSelfHelpContent": "microsoft.containerservice",
+            "searchSuffix": "AZURE KUBERNETES FLEET MANAGER",
+            "displayName": "Azure Kubernetes Fleet Manager"
+        },
+        {
+            "service": "ResourceService",
             "resourceType": "Microsoft.ContainerService/openShiftManagedClusters",
             "templateFileName": "OpenShiftManagedClusters",
             "imgSrc": "assets/img/Azure-Red-Hat-OpenShift-Logo.png",
@@ -490,18 +502,6 @@
             "searchSuffix": "AZURE ARC ENABLED KUBERNETES",
             "displayName": "Arc enabled Kubernetes"
          },
-         {
-            "service": "ResourceService",
-            "resourceType": "Microsoft.ContainerService/fleets",
-            "templateFileName": "KubernetesFleetManager",
-            "imgSrc": "assets/img/Azure-Kubernetes-FleetManager-Logo.png",
-            "versionPrefix": "",
-            "azureCommImpactedServicesList": "",
-            "pesId": "16450",
-            "staticSelfHelpContent": "microsoft.containerservice",
-            "searchSuffix": "AZURE KUBERNETES FLEET MANAGER",
-            "displayName": "Azure Kubernetes Fleet Manager"
-        },
          {
             "service": "ResourceService",
             "resourceType": "Microsoft.Media/mediaservices",
