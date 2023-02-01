@@ -4,7 +4,7 @@ private static string GetQuery(OperationContext<ArmResource> cxt)
     $@"
         let startTime = datetime({cxt.StartTime});
         let endTime = datetime({cxt.EndTime});
-        cluster('Aks').database('AKSprod').<YOUR_TABLE_NAME>
+        <YOUR_TABLE_NAME>
         | where Timestamp >= startTime and Timestamp <= endTime
         | <YOUR_QUERY>";
 }
@@ -15,7 +15,7 @@ public async static Task<Response> Run(DataProviders dp, OperationContext<ArmRes
 {
     res.Dataset.Add(new DiagnosticData()
     {
-        Table = await dp.Kusto.ExecuteClusterQuery(GetQuery(cxt), null, "GetQuery"),
+        Table = await dp.Kusto.ExecuteClusterQuery(GetQuery(cxt), "aks", "AKSprod", null, "GetQuery"),
         RenderingProperties = new Rendering(RenderingType.Table){
             Title = "Sample Table", 
             Description = "Some description here"
