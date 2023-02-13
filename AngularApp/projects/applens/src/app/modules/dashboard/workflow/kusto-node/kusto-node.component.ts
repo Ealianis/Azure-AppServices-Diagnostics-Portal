@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { promptType, stepVariable, workflowNodeData } from 'projects/diagnostic-data/src/lib/models/workflow';
-import { NgFlowchartStepComponent } from 'projects/ng-flowchart/dist';
+import {  NgFlowchartStepComponent } from 'projects/ng-flowchart/dist';
 import { ConfigureVariablesComponent } from '../configure-variables/configure-variables.component';
 import { KustoQueryDialogComponent } from '../kusto-query-dialog/kusto-query-dialog.component';
 import { kustoQueryDialogParams } from '../models/kusto';
@@ -53,6 +53,9 @@ export class KustoNodeComponent extends WorkflowNodeBaseClass implements OnInit 
         this.data.variables = this.variables;
         this.data.kustoQueryColumns = modelData.kustoQueryColumns;
         this._workflowServicePrivate.emitVariablesChange(true);
+        if (this.data.title === this._workflowServicePrivate.titleKustoNode) {
+          this.data.title = this.data.name;
+        }
       }
     });
   }

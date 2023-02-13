@@ -2,7 +2,7 @@
   <div class="panel panel-default">
     <div class="panel-heading">
 
-      <div style="display: flex;align-items: center;min-height: 40px;">
+      <div class="node-heading">
         <status-icon class="mr-3" [status]="status"></status-icon>
         <div class="mr-3"><strong>{{ data.title }}</strong></div>
         <div *ngIf="data.executionTraces && data.executionTraces.length > 0" class="tool-tip-icon">
@@ -33,7 +33,9 @@
 
     <div class="panel-body">
       <div class="description-text">{{ data.description }}</div>
-      <div class="markdown-text" [innerHTML]="markdownHtml"></div>
+      <div class="markdown-text">
+        <markdown [data]="data.markdownText"></markdown>
+      </div>
       <div class="run-button">
         <button *ngIf="showNextButton()" [disabled]="runButtonClicked" class="btn btn-primary btn-sm mb-2"
           (click)="runNext(data.children)">{{ isLoading ? 'Running...' : 'Next' }}</button>

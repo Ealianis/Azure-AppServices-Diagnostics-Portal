@@ -468,7 +468,11 @@ export class OnboardingFlowComponent implements OnInit, IDeactivateComponent {
     else {
       this.Branch = this.tempBranch;
       this.displayBranch = this.Branch;
-      this.diagnosticApiService.getDetectorCode(`${this.id.toLowerCase()}/${this.id.toLowerCase()}.csx`, this.Branch, this.resourceId).subscribe(x => {
+      if (this.mode === DevelopMode.Create) this.diagnosticApiService.getDetectorCode(`${this.Branch.split('/')[3].toLowerCase()}/${this.Branch.split('/')[3].toLowerCase()}.csx`, this.Branch, this.resourceId).subscribe(x => {
+        this.code = x;
+        this.lastSavedVersion = this.code
+      });
+      else this.diagnosticApiService.getDetectorCode(`${this.id.toLowerCase()}/${this.id.toLowerCase()}.csx`, this.Branch, this.resourceId).subscribe(x => {
         this.code = x;
         this.lastSavedVersion = this.code
       });
@@ -693,57 +697,87 @@ export class OnboardingFlowComponent implements OnInit, IDeactivateComponent {
     this.showBranches = [{ key: "", text: "" }];
     this.resourceId = this.resourceId == undefined || this.resourceId == '' ? this.resourceService.getCurrentResourceId() : this.resourceId;
     this.diagnosticApiService.getBranches(this.resourceId).subscribe(branches => {
-      var branchRegEx = this.gistMode ? new RegExp(`^dev\/.*\/gist\/${this.id}$`, "i") : new RegExp(`^dev\/.*\/detector\/${this.id}$`, "i");
-      branches.forEach(option => {
-        this.optionsForSingleChoice.push({
-          key: String(option["branchName"]),
-          text: String(option["branchName"])
+      this.diagnosticApiService.getDetectors().subscribe(listDetectors => {
+
+        if (this.mode != DevelopMode.Create){
+          var branchRegEx = this.gistMode ? new RegExp(`^dev\/.*\/gist\/${this.id}$`, "i") : new RegExp(`^dev\/.*\/detector\/${this.id}$`, "i");
+          branches.forEach(option => {
+            this.optionsForSingleChoice.push({
+              key: String(option["branchName"]),
+              text: String(option["branchName"])
+            });
+            if (option["isMainBranch"].toLowerCase() === "true") {
+              this.defaultBranch = String(option["branchName"]);
+              this.showBranches.push({
+                key: String(option["branchName"]),
+                text: String(option["branchName"])
+              });
+            }
+          })
+        }
+        else {
+          var branchRegEx = this.gistMode ? new RegExp(`^dev\/.*\/gist\/.*$`, "i") : new RegExp(`^dev\/.*\/detector\/.*$`, "i");
+          let idList = [];
+          listDetectors.forEach(det => {
+            idList.push(det.id);
+          });
+          branches = branches.filter( bn => {
+            return !idList.includes(bn["branchName"].split("/")[3]);
+          })
+          branches.forEach(option => {
+            if (option["isMainBranch"].toLowerCase() != "true")
+            this.optionsForSingleChoice.push({
+              key: String(option["branchName"]),
+              text: String(option["branchName"])
+            });
+            if (option["isMainBranch"].toLowerCase() === "true") {
+              this.defaultBranch = String(option["branchName"]);
+            }
+          })
+        }
+        
+        this.optionsForSingleChoice.forEach(branch => {
+          if (branchRegEx.test(branch.text)) {
+            this.showBranches.push({
+              key: String(branch.key),
+              text: String(`${branch.text.split("/")[1]} : ${branch.text.split("/")[3]}`)
+            });
+          }
         });
-        if (option["isMainBranch"].toLowerCase() === "true") {
-          this.defaultBranch = String(option["branchName"]);
+        // remove temp value from showBranches
+        this.showBranches = this.showBranches.filter(branchName => {
+          return branchName.key != '';
+        });
+        if (this.showBranches.length < 1 || this.mode == DevelopMode.EditMonitoring || this.mode == DevelopMode.EditAnalytics) {
+          this.noBranchesAvailable();
         }
-        if ((option["isMainBranch"].toLowerCase() === "true") && !(this.mode == DevelopMode.Create)) {// if main branch and in edit mode
-          this.showBranches.push({
-            key: String(option["branchName"]),
-            text: String(option["branchName"])
-          });
+        else {
+          if (this.mode != DevelopMode.Create) {
+            var targetBranch = this.gistMode ? `dev/${this.userName.split("@")[0]}/gist/${this.id.toLowerCase()}` : `dev/${this.userName.split("@")[0]}/detector/${this.id.toLowerCase()}`;
+            // if a branch is present via query params, default to that branch.
+            if (this.branchInput != undefined && this.branchInput != '' && this.mode == DevelopMode.Edit) {
+              this.Branch = this.branchInput;
+              this.displayBranch = this.Branch;
+              this.tempBranch = this.Branch;
+            } else {
+              this.Branch = this.targetInShowBranches(targetBranch) ? targetBranch : this.showBranches[0].key;
+              this.displayBranch = this.Branch;
+              this.tempBranch = this.Branch;
+            }
+            this.updateBranch();
+            this.showBranchInfo = true;
+          }
+          else {
+            this.displayBranch = "NA (not published)";
+          }
+          }
+        if (!this.initialized) {
+          this.initialize();
+          this.initialized = true;
+          this._telemetryService.logPageView(TelemetryEventNames.OnboardingFlowLoaded, {});
         }
-      })
-      this.optionsForSingleChoice.forEach(branch => {
-        if (branchRegEx.test(branch.text) && this.id.toLowerCase() != "") {
-          this.showBranches.push({
-            key: String(branch.key),
-            text: String(`${branch.text.split("/")[1]} : ${branch.text.split("/")[3]}`)
-          });
-        }
+
       });
-      // remove temp value from showBranches
-      this.showBranches = this.showBranches.filter(branchName => {
-        return branchName.key != '';
-      });
-      if (this.showBranches.length < 1 || this.mode == DevelopMode.EditMonitoring || this.mode == DevelopMode.EditAnalytics) {
-        this.noBranchesAvailable();
-      }
-      else {
-        var targetBranch = this.gistMode ? `dev/${this.userName.split("@")[0]}/gist/${this.id.toLowerCase()}` : `dev/${this.userName.split("@")[0]}/detector/${this.id.toLowerCase()}`;
-        // if a branch is present via query params, default to that branch.
-        if (this.branchInput != undefined && this.branchInput != '' && this.mode == DevelopMode.Edit) {
-          this.Branch = this.branchInput;
-          this.displayBranch = this.Branch;
-          this.tempBranch = this.Branch;
-        } else {
-          this.Branch = this.targetInShowBranches(targetBranch) ? targetBranch : this.showBranches[0].key;
-          this.displayBranch = this.Branch;
-          this.tempBranch = this.Branch;
-        }
-        this.updateBranch();
-        this.showBranchInfo = true;
-      }
-      if (!this.initialized) {
-        this.initialize();
-        this.initialized = true;
-        this._telemetryService.logPageView(TelemetryEventNames.OnboardingFlowLoaded, {});
-      }
     });
 
   }
@@ -1575,7 +1609,7 @@ export class OnboardingFlowComponent implements OnInit, IDeactivateComponent {
       this.Branch = targetBranch.replace(/\s/g, "");
       this.displayBranch = `${targetBranch.replace(/\s/g, "")}`;
     }
-    else if (!(this.showBranches.length > 1) || this.Branch === this.defaultBranch) {
+    else if (!(this.showBranches.length > 1) || this.Branch === this.defaultBranch || this.mode === DevelopMode.Create) {
       this.displayBranch = `${targetBranch.replace(/\s/g, "")} (not published)`;
       this.Branch = targetBranch.replace(/\s/g, "");
     }

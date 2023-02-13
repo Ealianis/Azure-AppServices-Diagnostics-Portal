@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { nodeType, stepVariable, workflowNode, workflowNodeData, workflow } from "diagnostic-data";
+import { nodeType, stepVariable, workflowNode, workflowNodeData, workflow, DetectorType, DetectorMetaData } from "diagnostic-data";
 import { NgFlowchart, NgFlowchartStepComponent } from "projects/ng-flowchart/dist";
 import { ConditionIffalseStepComponent } from "../condition-iffalse-step/condition-iffalse-step.component";
 import { ConditionIftrueStepComponent } from "../condition-iftrue-step/condition-iftrue-step.component";
@@ -13,6 +13,7 @@ import { SwitchCaseStepComponent } from "../switch-case-step/switch-case-step.co
 import { SwitchStepComponent } from "../switch-step/switch-step.component";
 import { Subject } from "rxjs";
 import Swal from 'sweetalert2';
+import { ApplensDiagnosticService } from "../../services/applens-diagnostic.service";
 
 const swalWithBootstrapButtons = Swal.mixin({
   customClass: {
@@ -24,10 +25,14 @@ const swalWithBootstrapButtons = Swal.mixin({
 
 @Injectable()
 export class WorkflowService {
-  newDetectorId: string = '<SomeDetectorId>';
   isDisabled(node: NgFlowchartStepComponent<any>): boolean {
     return node.children.length > 0;
   }
+
+  titleKustoNode: string = "Execute Kusto Query";
+  nodeTypesAllowedForDragDrop: string[] = ['detector', 'kustoQuery', 'markdown'];
+  nodeTypesAllowedForDrag: string[] = ['ifelsecondition', 'switchCondition'];
+  nodeTypesAllowedForDropBelow: string[] = ['iffalse', 'iftrue', 'switchCaseDefault', 'switchCase'];
 
   //
   // Code to handle updation of variables on child nodes
@@ -35,6 +40,14 @@ export class WorkflowService {
 
   private emitChangeVariables = new Subject<boolean>();
   variablesChangeEmitted$ = this.emitChangeVariables.asObservable();
+  workflowNodeDetectors: DetectorMetaData[] = [];
+
+  constructor(private _applensDiagnosticService: ApplensDiagnosticService) {
+    this._applensDiagnosticService.getDetectors().subscribe(detectors => {
+      this.workflowNodeDetectors = detectors.filter(x => x.type === DetectorType.WorkflowNode);
+    });
+  }
+
   emitVariablesChange(change: boolean) {
     this.emitChangeVariables.next(change);
   }
@@ -80,7 +93,7 @@ export class WorkflowService {
     let currentNode = newNode.isParallel ? node.parent : node;
     switch (newNode.nodeType) {
       case nodeType.detector:
-        let dataNodeDetector = this.getNewDetectorNode(currentNode, this.newDetectorId);
+        let dataNodeDetector = this.getNewDetectorNode(currentNode, this.workflowNodeDetectors[0].id);
         currentNode.addChild({
           template: DetectorNodeComponent,
           type: 'detector',
@@ -91,7 +104,7 @@ export class WorkflowService {
         break;
 
       case nodeType.kustoQuery:
-        let dataNodeKustoQuery = this.getNewNode(currentNode, 'kustoQuery', "Execute Kusto Query");
+        let dataNodeKustoQuery = this.getNewNode(currentNode, 'kustoQuery', this.titleKustoNode);
         currentNode.addChild({
           template: KustoNodeComponent,
           type: 'kustoQuery',

@@ -30,10 +30,10 @@ export class DetectorNodeComponent extends WorkflowNodeBaseClass implements OnIn
     this.loadingDetectors = true;
     this.error = null;
     this._applensDiagnosticService.getDetectors().subscribe(detectors => {
-      this.loadingDetectors = false;
       this.workflowNodeDetectors = detectors.filter(x => x.type === DetectorType.WorkflowNode);
-      if (this.data.detectorId === this._workflowServicePrivate.newDetectorId) {
+      if (this.workflowNodeDetectors && this.workflowNodeDetectors.length > 0) {
         this.updateCurrentDetector(this.workflowNodeDetectors[0].id);
+        this.loadingDetectors = false;
       }
     }, error => {
       this.loadingDetectors = false;
@@ -52,7 +52,7 @@ export class DetectorNodeComponent extends WorkflowNodeBaseClass implements OnIn
   updateCurrentDetector(detectorId: string) {
     this.data.detectorId = detectorId;
     this.data.variables = [];
-    let idNumber = this._workflowServicePrivate.getIdNumberForNode(this, this.data.detectorId);
+    let idNumber = this._workflowServicePrivate.getIdNumberForNode(this, detectorId);
     this.data.name = this.data.detectorId + idNumber;
 
     let allRouteQueryParams = this._route.snapshot.queryParams;
