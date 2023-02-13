@@ -103,7 +103,7 @@
             "pesId":"17929",
             "staticSelfHelpContent": "microsoft.containerservice",
             "searchSuffix": "AZURE KUBERNETES FLEET MANAGER",
-            "displayName": "Azure Kubernetes Fleet Manager"
+            "displayName": "Kubernetes Fleet Manager"
         },
         {
             "service": "ResourceService",
