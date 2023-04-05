@@ -16,7 +16,6 @@
             "emergingIssuesICMLookupEnabled": false,
             "displayName": "App",
             "overviewPageMetricsId" : "applensoverviewmetrics_appservices",
-            "userAuthorizationEnabled": true,
             "workflowsEnabled": true
         },
         {
@@ -477,7 +476,8 @@
              "azureCommImpactedServicesList": "staticSites",
             "pesId": "17265",
             "searchSuffix": "AZURE STATIC WEB APPS",
-            "displayName": "Static Web Apps"
+            "displayName": "Static Web Apps",
+            "workflowsEnabled": true
          },
         {
              "service": "ResourceService",
@@ -736,6 +736,43 @@
             "staticSelfHelpContent": "",
             "searchSuffix": "WINDOWS NOTIFICATION SERVICE",
             "displayName": "Windows Notification Service"
+        },
+        {
+            "service": "ResourceService",
+            "resourceType": "Microsoft.DevCenter/projects",
+            "templateFileName": "DevCenter",
+            "imgSrc": "assets/img/Azure-DevBox-Logo.svg",
+            "versionPrefix": "",
+            "azureCommImpactedServicesList": "",
+            "pesId": "17466",
+            "staticSelfHelpContent": "",
+            "searchSuffix": "MICROSOFT DEV CENTER",
+            "displayName": "Microsoft Dev Center"
+        },
+        {
+            "service": "ResourceService",
+            "resourceType": "Microsoft.Graph/auth",
+            "templateFileName": "GraphAuth",
+            "imgSrc": "assets/img/Graph-Auth-Logo.svg",
+            "versionPrefix": "",
+            "azureCommImpactedServicesList": "",
+            "pesId": "16952",
+            "staticSelfHelpContent": "",
+            "searchSuffix": "MICROSOFT GRAPH AUTHENTICATION AND AUTHORIZATION (AZURE AD)",
+            "displayName": "Microsoft Graph Authentication and Authorization (Azure AD)"
+        }
+        ,
+        {
+            "service": "ResourceService",
+            "resourceType": "Microsoft.AzurePlaywrightService/accounts",
+            "templateFileName": "Playwright",
+            "imgSrc": "assets/img/Azure-Playwright-Logo.svg",
+            "versionPrefix": "",
+            "azureCommImpactedServicesList": "",
+            "pesId": "17935",
+            "staticSelfHelpContent": "",
+            "searchSuffix": "MICROSOFT PLAYWRIGHT TESTING",
+            "displayName": "Microsoft Playwright Testing"
         }
     ]
 }

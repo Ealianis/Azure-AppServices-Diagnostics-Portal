@@ -106,6 +106,7 @@ export class DashboardComponent implements OnDestroy {
   stillLoading: boolean = false;
   loaderSize = SpinnerSize.large;
   showDashboardContent: boolean = true;
+  showGPTComponent: boolean = false;
   alertDialogStyles = { main: { maxWidth: "70vw!important", minWidth: "40vw!important" } };
   alertDialogProps = {isBlocking: true}
   dialogType: DialogType = DialogType.normal;
@@ -115,13 +116,18 @@ export class DashboardComponent implements OnDestroy {
   constructor(public resourceService: ResourceService, private startupService: StartupService,  private _detectorControlService: DetectorControlService,
     private _router: Router, private _activatedRoute: ActivatedRoute, private _navigator: FeatureNavigationService,
     private _diagnosticService: ApplensDiagnosticService, private _adalService: AdalService, public _searchService: SearchService, private _diagnosticApiService: DiagnosticApiService, private _observerService: ObserverService, public _applensGlobal: ApplensGlobal, private _startupService: StartupService, private _resourceService: ResourceService, private _breadcrumbService: BreadcrumbService, private _userSettingsService: UserSettingService, private _themeService: GenericThemeService,
-    private _alertService: AlertService, private _telemetryService: TelemetryService, private _titleService: Title) {
+    private _alertService: AlertService, private _telemetryService: TelemetryService, private _titleService: Title){
     this.contentHeight = (window.innerHeight - 50) + 'px';
 
     this.navigateSub = this._navigator.OnDetectorNavigate.subscribe((detector: string) => {
       if (detector) {
         this._router.navigate([`./detectors/${detector}`], { relativeTo: this._activatedRoute, queryParamsHandling: 'merge' });
       }
+    });
+
+    this._router.events.subscribe((val) => {
+      // see also
+      this.checkGPTRoute();
     });
 
     // Add time params to route if not already present
@@ -272,11 +278,21 @@ export class DashboardComponent implements OnDestroy {
     }
   }
 
+  checkGPTRoute(){
+    if (this._router.url.includes("chatgpt")) {
+      this.showGPTComponent = true;
+    }
+    else {
+      this.showGPTComponent = false;
+    }
+  }
+
   ngOnInit() {
     if (this._diagnosticApiService.CustomerCaseNumber && this._diagnosticApiService.CustomerCaseNumber.length>0) {
       setInterval(() => {this.addCaseNumberToLinks(this._diagnosticApiService.CustomerCaseNumber)}, 500);
     }
     this.examineUserAccess();
+    this.checkGPTRoute();
     this.stillLoading = true;
     this._diagnosticService.getDetectors().subscribe(detectors => {
       this.stillLoading = false;

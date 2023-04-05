@@ -125,6 +125,16 @@ import { MarkdownQueryDialogComponent } from './workflow/markdown-query-dialog/m
 import { WorkflowComponent } from './workflow/workflow/workflow.component';
 import { WorkflowRunDialogComponent } from './workflow/workflow-run-dialog/workflow-run-dialog.component';
 import { WorkflowRootNodeComponent } from './workflow/workflow-root-node/workflow-root-node.component';
+import { ApplensOpenAIChatService } from '../../shared/services/applens-openai-chat.service';
+import { GenericOpenAIChatService } from '../../../../../diagnostic-data/src/public_api';
+import { OpenAIArmService } from '../../../../../diagnostic-data/src/public_api';
+import { OpenAIChatComponent } from './openai-chat/openai-chat.component';
+import {ChatGPTContextService} from 'diagnostic-data';
+import { DevopsDeploymentsComponent } from './devops-deployments/devops-deployments.component';
+import { ForeachNodeComponent } from './workflow/foreach-node/foreach-node.component';
+import { WorkflowUserAccessComponent } from './workflow/workflow-user-access/workflow-user-access.component';
+import { InputNodeComponent } from './workflow/input-node/input-node.component';
+import { NetworkTraceAnalysisComponent } from './network-trace-analysis/network-trace-analysis.component';
 
 @Injectable()
 export class InitResolver implements Resolve<Observable<ResourceInfo>>{
@@ -172,6 +182,10 @@ export const DashboardModuleRoutes: ModuleWithProviders<DashboardModule> = Route
             {
                 path: 'overview',
                 redirectTo: '',
+                pathMatch: 'full'
+            },
+            {
+                path: 'chatgpt',
                 pathMatch: 'full'
             },
             {
@@ -227,6 +241,10 @@ export const DashboardModuleRoutes: ModuleWithProviders<DashboardModule> = Route
                 path: 'createWorkflow',
                 component: WorkflowComponent,
                 canDeactivate: [DevelopNavigationGuardService]
+            },
+            {
+                path: 'addworkflowuser',
+                component: WorkflowUserAccessComponent
             },
             {
                 path: 'solutionOrchestrator',
@@ -472,9 +490,13 @@ export const DashboardModuleRoutes: ModuleWithProviders<DashboardModule> = Route
                 component: ConfigurationComponent
             },
             {
-                path: 'users/:userId/activepullrequests',
-                component: UserActivePullrequestsComponent
-            }
+                path: 'deployments',
+                component: DevopsDeploymentsComponent
+            },
+            {
+                path: 'networkTraceAnalysis',
+                component: NetworkTraceAnalysisComponent
+            },
         ]
     },
 
@@ -547,6 +569,9 @@ export const DashboardModuleRoutes: ModuleWithProviders<DashboardModule> = Route
         ApplensDocumentationService,
         InitResolver,
         ApplensGlobals,
+        ApplensOpenAIChatService,
+        ChatGPTContextService,
+        OpenAIArmService,
         BreadcrumbService,
         ClientScriptService,
         WorkflowService,
@@ -566,7 +591,8 @@ export const DashboardModuleRoutes: ModuleWithProviders<DashboardModule> = Route
         { provide: GenieGlobals, useExisting: ApplensGlobals },
         { provide: GenericBreadcrumbService, useExisting: BreadcrumbService },
         { provide: GenericUserSettingService, useExisting: UserSettingService },
-        { provide: GenericClientScriptService, useExisting: ClientScriptService}
+        { provide: GenericClientScriptService, useExisting: ClientScriptService},
+        { provide: GenericOpenAIChatService, useExisting: ApplensOpenAIChatService}
     ],
     declarations: [DashboardComponent, SideNavComponent, ResourceMenuItemComponent, ResourceHomeComponent, OnboardingFlowComponent, SearchTermAdditionComponent,
         SearchMenuPipe, TabDataComponent, TabDevelopComponent, TabCommonComponent, TabDataSourcesComponent, TabMonitoringComponent,
@@ -576,6 +602,6 @@ export const DashboardModuleRoutes: ModuleWithProviders<DashboardModule> = Route
         L2SideNavComponent, UserActivePullrequestsComponent, FavoriteDetectorsComponent, ApplensDocsComponent, ApplensDocSectionComponent, CreateWorkflowComponent,
         IfElseConditionStepComponent, ConditionIftrueStepComponent, ConditionIffalseStepComponent, SwitchStepComponent, SwitchCaseStepComponent, SwitchCaseDefaultStepComponent,
         KustoQueryDialogComponent, DetectorNodeComponent, KustoNodeComponent, MarkdownNodeComponent, NodeActionsComponent, ConfigureVariablesComponent, CommonNodePropertiesComponent,
-        NodeTitleComponent, ErrorMessageComponent, MarkdownQueryDialogComponent, WorkflowComponent, WorkflowRunDialogComponent, UpdateDetectorReferencesComponent, WorkflowRootNodeComponent]
+        NodeTitleComponent, ErrorMessageComponent, MarkdownQueryDialogComponent, WorkflowComponent, WorkflowRunDialogComponent, UpdateDetectorReferencesComponent, WorkflowRootNodeComponent, OpenAIChatComponent, WorkflowUserAccessComponent, ForeachNodeComponent, DevopsDeploymentsComponent, InputNodeComponent, NetworkTraceAnalysisComponent]
 })
 export class DashboardModule { }

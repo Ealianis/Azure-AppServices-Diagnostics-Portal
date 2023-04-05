@@ -266,22 +266,34 @@ export class CrashMonitoringAnalysisComponent implements OnInit, OnChanges, OnDe
 
   getLinkToDumpFile(dumpFileName: string): string {
     if (this.daasStorageConfiguration !== null) {
-      let blobUrl: URL;
+      let blobUrl: URL = null;
       if (this.daasStorageConfiguration.SasUri) {
-        blobUrl = new URL(this.daasStorageConfiguration.SasUri);
+        blobUrl = this.getBlobUrl(this.daasStorageConfiguration.SasUri);
       }
       else if (this.daasStorageConfiguration.ConnectionString) {
-        blobUrl = new URL(this.daasBlobSasUri);
+        blobUrl = this.getBlobUrl(this.daasBlobSasUri);
       }
 
-      let relativePath = "CrashDumps/" + dumpFileName;
-      return `https://${blobUrl.host}${blobUrl.pathname}/${relativePath}?${blobUrl.searchParams}`;
-
-    } else {
-      return "";
+      if (blobUrl) {
+        let relativePath = "CrashDumps/" + dumpFileName;
+        return `https://${blobUrl.host}${blobUrl.pathname}/${relativePath}?${blobUrl.searchParams}`;
+      }
     }
+
+    return "";
   }
 
+  getBlobUrl(host: string): URL {
+    try {
+      let blobUrl = new URL(host);
+      return blobUrl;
+    }
+    catch (error) {
+      // ignore
+    }
+
+    return null;
+  }
   stopMonitoring(viaAgent: boolean) {
     this.errorMessage = "";
     this.error = null;

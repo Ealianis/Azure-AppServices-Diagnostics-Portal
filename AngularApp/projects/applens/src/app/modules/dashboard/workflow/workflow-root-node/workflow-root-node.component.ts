@@ -34,8 +34,8 @@ export class WorkflowRootNodeComponent extends NgFlowchartStepComponent<any> imp
 
     if (type === nodeType.detector) {
       wfNode.type = "detector";
-      wfNode.data.name = this._workflowService.workflowNodeDetectors[0].id + "1";
-      wfNode.data.detectorId = this._workflowService.workflowNodeDetectors[0].id;
+      wfNode.data.name = "choosedetector";
+      wfNode.data.detectorId = "choosedetector";
       wfNode.data.title = "Execute a detector";
 
     } else if (type === nodeType.kustoQuery) {
@@ -46,6 +46,10 @@ export class WorkflowRootNodeComponent extends NgFlowchartStepComponent<any> imp
       wfNode.type = "markdown";
       wfNode.data.name = "markdown1";
       wfNode.data.title = "Display Markdown";
+    } else if (type === nodeType.input) {
+      wfNode.type = "input";
+      wfNode.data.name = "input1";
+      wfNode.data.title = "Take User Input";
     }
 
     wfNode.children = [];

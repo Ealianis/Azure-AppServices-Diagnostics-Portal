@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { nodeType, stepVariable, workflowNode, workflowNodeData, workflow, DetectorType, DetectorMetaData } from "diagnostic-data";
+import { nodeType, stepVariable, workflowNode, workflowNodeData, workflow, DetectorType, DetectorMetaData, inputType } from "diagnostic-data";
 import { NgFlowchart, NgFlowchartStepComponent } from "projects/ng-flowchart/dist";
 import { ConditionIffalseStepComponent } from "../condition-iffalse-step/condition-iffalse-step.component";
 import { ConditionIftrueStepComponent } from "../condition-iftrue-step/condition-iftrue-step.component";
@@ -14,6 +14,8 @@ import { SwitchStepComponent } from "../switch-step/switch-step.component";
 import { Subject } from "rxjs";
 import Swal from 'sweetalert2';
 import { ApplensDiagnosticService } from "../../services/applens-diagnostic.service";
+import { ForeachNodeComponent } from "../foreach-node/foreach-node.component";
+import { InputNodeComponent } from "../input-node/input-node.component";
 
 const swalWithBootstrapButtons = Swal.mixin({
   customClass: {
@@ -125,16 +127,26 @@ export class WorkflowService {
         });
         break;
 
+      case nodeType.input:
+        let dataNodeInput = this.getNewNode(currentNode, 'input', "Take User input");
+        currentNode.addChild({
+          template: InputNodeComponent,
+          type: 'input',
+          data: dataNodeInput
+        }, {
+          sibling: true
+        });
+        break;
+
       default:
         break;
     }
   }
 
   getNewDetectorNode(node: NgFlowchartStepComponent<any>, detectorId: string): workflowNodeData {
-    let idNumber = this.getIdNumberForNode(node, detectorId);
     let wfNodeData = new workflowNodeData();
-    wfNodeData.name = detectorId + idNumber;
-    wfNodeData.detectorId = detectorId;
+    wfNodeData.name = "choosedetector";
+    wfNodeData.detectorId = "choosedetector";
     wfNodeData.title = "Execute a detector";
     wfNodeData.completionOptions = this.getVariableCompletionOptions(node);
     return wfNodeData;
@@ -335,29 +347,68 @@ export class WorkflowService {
     });
   }
 
+  addForEach(node: NgFlowchartStepComponent<any>) {
+    let currentNode = node;
+    let foreachNode = new workflowNode();
+    foreachNode.type = "foreach";
+
+    let foreachDataNode = new workflowNodeData();
+    foreachDataNode.name = "foreach";
+    foreachDataNode.title = "For Each";
+    foreachDataNode.completionOptions = this.getVariableCompletionOptions(node).filter(x => x.type === 'Array');
+
+    currentNode.addChild({
+      template: ForeachNodeComponent,
+      type: 'foreach',
+      data: foreachDataNode
+    }, {
+      sibling: true
+    });
+  }
+
   isActionNode(node: NgFlowchartStepComponent<any>): boolean {
     if (node.type === 'detector'
       || node.type === 'markdown'
-      || node.type === 'kustoQuery') {
+      || node.type === 'kustoQuery'
+      || node.type === 'input') {
       return true;
     }
 
     return false;
   }
 
-  getVariableCompletionOptions(node: NgFlowchartStepComponent<any>, includeCurrentNode: boolean = true): stepVariable[] {
+  getVariableCompletionOptions(node: NgFlowchartStepComponent<workflowNodeData>, includeCurrentNode: boolean = true): stepVariable[] {
     let allVariables: stepVariable[] = [];
     let currentNode = node;
     while (currentNode != null) {
       if (includeCurrentNode) {
         if (this.isActionNode(currentNode)) {
           allVariables = allVariables.concat(currentNode.data.variables);
+          if (currentNode.type === 'input') {
+            if (currentNode.data.inputNode.inputType === inputType.daterange) {
+              allVariables.push(this.getStepVariableForInputNode(currentNode.data.name, currentNode.data.inputNode.startDateVariableName));
+              allVariables.push(this.getStepVariableForInputNode(currentNode.data.name, currentNode.data.inputNode.endDateVariableName));
+
+            } else {
+              allVariables.push(this.getStepVariableForInputNode(currentNode.data.name, currentNode.data.inputNode.variableName));
+            }
+          }
         }
       }
       includeCurrentNode = true;
       currentNode = currentNode.parent;
     }
     return allVariables;
+  }
+
+  getStepVariableForInputNode(nodeName: string, variableName: string): stepVariable {
+    let inputVariable: stepVariable = new stepVariable();
+    inputVariable.type = 'System.String';
+    inputVariable.name = nodeName + '_' + variableName;
+    inputVariable.value = nodeName + '_' + variableName;
+    inputVariable.runtimeValue = "UserInput";
+    inputVariable.isUserInput = true;
+    return inputVariable;
   }
 
   isUniqueNodeName(name: string, currentNode: NgFlowchartStepComponent<workflowNodeData>): boolean {
@@ -398,6 +449,18 @@ export class WorkflowService {
     return false;
   }
 
+  getQueryText(data: workflowNodeData): string {
+    if (data.queryText) {
+      return data.queryText;
+    }
+
+    if (data.kustoNode && data.kustoNode.queryText) {
+      return data.kustoNode.queryText
+    }
+
+    return '';
+  }
+
   isNodeUsingVariable(stepVariableName: string, node: NgFlowchartStepComponent<workflowNodeData>): boolean {
     if (node.data.markdownText.toLowerCase().indexOf(stepVariableName.toLocaleLowerCase()) > -1) {
       return true;
@@ -406,8 +469,8 @@ export class WorkflowService {
       return true;
     }
 
-    if (node.type === 'kustoQuery' && node.data.queryText) {
-      let queryPlainText = this.decodeBase64String(node.data.queryText);
+    if (node.type === 'kustoQuery' && this.getQueryText(node.data)) {
+      let queryPlainText = this.decodeBase64String(this.getQueryText(node.data));
       if (queryPlainText.indexOf(stepVariableName.toLocaleLowerCase()) > -1) {
         return true;
       }
@@ -438,6 +501,16 @@ export class WorkflowService {
     swalWithBootstrapButtons.fire(title, message, 'error');
   }
 
+  showMessageBoxWithFooter(title: string, message: string, footer: string, width?: string) {
+    swalWithBootstrapButtons.fire({
+      icon: 'error',
+      title: title,
+      html: message,
+      footer: footer,
+      width: width
+    });
+  }
+
   isValidVariableName(variableName: string): boolean {
     const regexVarName = new RegExp('^[a-zA-Z_][a-zA-Z_0-9]*$');
     return regexVarName.test(variableName);
@@ -453,6 +526,8 @@ export class WorkflowService {
       return `| where StringTypeColumn =~ '{${variable.name}}'`;
     } else if (variableType == 'DateTime') {
       return `| where DateTypeColumn > datetime({${variable.name}})`;
+    } else if (variableType == 'Array') {
+      return `| where SomeColumnName in {NormalizeArray(${variable.name}, addQuotes:true)}`;
     }
 
     return `| where NumberTypeColumn == {${variable.name}}`;

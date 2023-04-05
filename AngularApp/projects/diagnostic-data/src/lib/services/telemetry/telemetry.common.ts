@@ -113,6 +113,21 @@ export const TelemetryEventNames = {
     ICMTeamTemplateLoaded: 'ICMTeamTemplateLoaded',
     ICMTeamTemplateUpdate: 'ICMTeamTemplateUpdate',
     HomePageLogUser: 'HomePageLogUser',
+    ChatGPTLoaded: 'ChatGPTLoaded',
+    ChatGPTUserSettingLoaded: 'ChatGPTUserSettingLoaded',
+    ChatGPTSampleClicked: 'ChatGPTSampleClicked',
+    ChatGPTUserFeedbackLike: 'ChatGPTUserFeedbackLike',
+    ChatGPTUserFeedbackDislike: 'ChatGPTUserFeedbackDislike',
+    ChatGPTCheckMessageCount: 'ChatGPTCheckMessageCount',
+    ChatGPTRequestError: 'ChatGPTRequestError',
+    ChatGPTUserQuotaExceeded: 'ChatGPTUserQuotaExceeded',
+    ChatGPTTooManyRequestsError: 'ChatGPTTooManyRequestsError',
+    LoadingTimeOut: 'LoadingTimeOut',
+    EmptySearchTerm: 'EmptySearchTerm',
+    ChatGPTARMQueryResults: 'ChatGPTARMQueryResults',
+    ChatGPTARMQueryError: 'ChatGPTARMQueryError',
+    ChatGPTARMQueryTimedout: 'ChatGPTARMQueryTimedout',
+    ChatGPTARMQueryResultEmpty: 'ChatGPTARMQueryResultEmpty'
 };
 
 export const TelemetrySource = {

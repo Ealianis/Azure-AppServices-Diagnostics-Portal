@@ -39,6 +39,7 @@ export class DetectorCommandBarComponent implements AfterViewInit {
   showCoachmark: boolean = true;
   showTeachingBubble: boolean = false;
   generatedOn: string;
+  coachMarkCookieName: string = "showCoachmark";
   coachmarkPositioningContainerProps = {
     directionalHint: DirectionalHint.bottomLeftEdge,
     doNotLayer: true
@@ -46,6 +47,8 @@ export class DetectorCommandBarComponent implements AfterViewInit {
   teachingBubbleCalloutProps = {
     directionalHint: DirectionalHint.bottomLeftEdge
   };
+  teachingBubbleHeadline = "New Resiliency Score report!";
+  teachingBubbleText = "Download a report to check how well your Web App scores against our recommended resiliency best practices.";
   resourcePlatform: OperatingSystem = OperatingSystem.any;
   resourceAppType: AppType = AppType.WebApp;
   resourceSku: Sku = Sku.All;
@@ -60,8 +63,8 @@ export class DetectorCommandBarComponent implements AfterViewInit {
     this.subscriptionId = this._route.parent.snapshot.params['subscriptionid'];
     // allowlisting beta subscriptions for testing purposes
     _isBetaSubscription = DemoSubscriptions.betaSubscriptions.indexOf(this.subscriptionId) >= 0;
-    // allowing 0% of subscriptions to use new feature
-    _isSubIdInPercentageToRelease = this._percentageOfSubscriptions(this.subscriptionId, 0.5);
+    // allowing 100% of subscriptions to use new feature
+    _isSubIdInPercentageToRelease = this._percentageOfSubscriptions(this.subscriptionId, 1);
 
     // Releasing to only Beta Subscriptions for Web App (Linux) in standard or higher and all Web App (Windows) in standard or higher
     this.displayRPDFButton = ((this._checkIsWebAppProdSku(OperatingSystem.linux) && (_isSubIdInPercentageToRelease || _isBetaSubscription)) || this._checkIsWebAppProdSku(OperatingSystem.windows));
@@ -78,8 +81,8 @@ export class DetectorCommandBarComponent implements AfterViewInit {
     //Get showCoachMark value(string) from local storage (if exists), then convert to boolean
     try {
       if (this.displayRPDFButton){
-        if (localStorage.getItem("showCoachmark") != undefined) {
-          this.showCoachmark = localStorage.getItem("showCoachmark") === "true";
+        if (localStorage.getItem(this.coachMarkCookieName) != undefined) {
+          this.showCoachmark = localStorage.getItem(this.coachMarkCookieName) === "true";
         }
         else {
           this.showCoachmark = true;
@@ -92,7 +95,7 @@ export class DetectorCommandBarComponent implements AfterViewInit {
       const eventProperties = {
         'Subscription': this.subscriptionId,
         'Error': error,
-        'Message': 'Error trying to retrieve showCoachmark from localStorage'        
+        'Message': `Error trying to retrieve ${this.coachMarkCookieName} from localStorage`       
       }
       this.telemetryService.logEvent(TelemetryEventNames.ResiliencyScoreReportInPrivateAccess, eventProperties);
     }
@@ -106,12 +109,16 @@ export class DetectorCommandBarComponent implements AfterViewInit {
     this.http.get<any>('assets/vfs_fonts.json').subscribe((data: any) => {this.vfsFonts=data}); 
   }
 
-
   private _checkIsWebAppProdSku(platform: OperatingSystem): boolean {
     let webSiteService = this._resourceService as WebSitesService;
     this.resourcePlatform = webSiteService.platform;
     this.resourceAppType = webSiteService.appType;
     this.resourceSku = webSiteService.sku;
+    if (this.resourcePlatform === OperatingSystem.linux){
+      this.teachingBubbleHeadline = "New Resiliency Score report for Web App (Linux)!";
+      this.coachMarkCookieName = "showCoachmarkLinux";
+      this.teachingBubbleText = "Resiliency Score Report now supports Web App (Linux) in Standard or higher. Download a report to check how well your Web App scores against our recommended resiliency best practices.";
+    }
     return this._resourceService && this._resourceService instanceof WebSitesService
       && ((webSiteService.platform === platform) && (webSiteService.appType === AppType.WebApp) && (webSiteService.sku > 8)); //Only for Web Apps  in Standard or higher
   }
@@ -122,7 +129,6 @@ export class DetectorCommandBarComponent implements AfterViewInit {
     // roughly split of percentageToRelease of subscriptions to use new feature.
      return ((16 - parseInt(firstDigit, 16)) / 16 <= percentageToRelease);
   }
-
 
   toggleOpenState() {
     this.telemetryService.logEvent(TelemetryEventNames.OpenGenie, {
@@ -148,12 +154,12 @@ export class DetectorCommandBarComponent implements AfterViewInit {
     // Once the button is clicked no need to show Coachmark anymore:
     const loggingError = new Error();
     try {
-      if (localStorage.getItem("showCoachmark") != undefined) {
-        this.showCoachmark = localStorage.getItem("showCoachmark") === "true";
+      if (localStorage.getItem(this.coachMarkCookieName) != undefined) {
+        this.showCoachmark = localStorage.getItem(this.coachMarkCookieName) === "true";
       }
       else {
         this.showCoachmark = false;
-        localStorage.setItem("showCoachmark", "false");
+        localStorage.setItem(this.coachMarkCookieName, "false");
       }
     }
     catch (error) {
@@ -162,7 +168,7 @@ export class DetectorCommandBarComponent implements AfterViewInit {
       const eventProperties = {
         'Subscription': this.subscriptionId,
         'Error': error,
-        'Message': 'Error trying to retrieve showCoachmark from localStorage'    
+        'Message': `Error trying to retrieve ${this.coachMarkCookieName} from localStorage`
       }
       this.telemetryService.logEvent(TelemetryEventNames.ResiliencyScoreReportInPrivateAccess, eventProperties);
     }
@@ -201,11 +207,15 @@ export class DetectorCommandBarComponent implements AfterViewInit {
         // log telemetry for interaction
         const eventProperties = {
           'Subscription': this.subscriptionId,
+          'Platform': this.resourcePlatform != undefined ? this.resourcePlatform.toString() : "",
+          'AppType': this.resourceAppType != undefined ? this.resourceAppType.toString(): "",
+          'ResourceSku': this.resourceSku != undefined ? this.resourceSku.toString(): "",
           'CustomerName': JSON.parse(httpResponse.dataset[0].table.rows[0][0]).CustomerName,
           'NameSite1': JSON.parse(httpResponse.dataset[0].table.rows[1][0])[0].Name,
           'ScoreSite1': JSON.parse(httpResponse.dataset[0].table.rows[1][0])[0].OverallScore,
           'DetectorTimeTaken': detectorTimeTaken.toString(),
-          'TotalTimeTaken': totalTimeTaken.toString()
+          'TotalTimeTaken': totalTimeTaken.toString(),
+
         };
         this.telemetryService.logEvent(TelemetryEventNames.ResiliencyScoreReportDownloaded, eventProperties);
         this.gRPDFButtonText = "Get Resiliency Score report";
@@ -303,7 +313,7 @@ export class DetectorCommandBarComponent implements AfterViewInit {
 
     //Once Coachmark has been seen, disable it by setting boolean value to local storage
     try {
-      localStorage.setItem("showCoachmark", "false");
+      localStorage.setItem(this.coachMarkCookieName, "false");
     }
     catch (error) {
       // Use TelemetryService logEvent when not able to access local storage.
