@@ -4,8 +4,8 @@
         "description": "Investigate how your fleets are performing, diagnose issues, and discover how to improve its reliability.",
         "searchBarPlaceHolder": "Search a keyword that best describes your issue"
     },
-	"matchRegEx": "/Microsoft.ContainerService/managedClusters/",
-	"searchSuffix": "AKS",
+	"matchRegEx": "/Microsoft.ContainerService/fleets/",
+	"searchSuffix": "Fleet",
 	"azureServiceName": "Azure Kubernetes Fleet",
 	"armApiConfig": {
 		"armApiVersion": "2019-04-01"
@@ -18,14 +18,14 @@
 	},
     "categories": [
         {
-            "id": "stalefleetmemberidentities",
-            "name": "Member connectivity issues",
-            "description": "Identify fleet members that are unable to communicate to their hub due to a change in their identity",
-            "keywords": [ "members", "connection", "Identity", "Unauthorized", "MSI"],
+            "id": "category-aks-fleet-connectivity-issues",
+            "name": "Connectivity Issues",
+            "description": "Find out connectivity issues related to our fleet's clusters.",
+            "keywords": [ "fleet", "aks fleet", "connectivity", "member clusters", "msi", "identity"],
             "color": "rgb(249, 213, 180)",
             "createFlowForCategory": true,
             "chatEnabled": false,
-            "overviewDetectorId": "stale-fleet-member-identities"
+            "overviewDetectorId": "aks-fleet-category-connectivity"
         }
     ],
 
