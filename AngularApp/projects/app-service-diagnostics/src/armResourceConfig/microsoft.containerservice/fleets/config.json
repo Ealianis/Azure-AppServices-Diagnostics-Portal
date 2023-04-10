@@ -8,7 +8,7 @@
 	"searchSuffix": "Fleet",
 	"azureServiceName": "Azure Kubernetes Fleet",
 	"armApiConfig": {
-		"armApiVersion": "2019-04-01"
+		"armApiVersion": "2023-03-15-preview"
 	},
 	"isSearchEnabled": true,
 	"keystoneDetectorId": "",
