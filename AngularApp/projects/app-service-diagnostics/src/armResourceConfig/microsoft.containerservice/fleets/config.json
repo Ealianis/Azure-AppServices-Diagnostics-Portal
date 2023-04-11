@@ -18,14 +18,14 @@
 	},
     "categories": [
         {
-            "id": "category-aks-fleet-connectivity",
-            "name": "Connectivity",
+            "id": "aksfleetcategoryconnectivityissues",
+            "name": "Connectivity Issues",
             "description": "Find out connectivity issues related to our fleet's clusters.",
             "keywords": [ "fleet", "aks fleet", "connectivity", "member clusters", "msi", "identity"],
             "color": "rgb(249, 213, 180)",
             "createFlowForCategory": true,
             "chatEnabled": false,
-            "overviewDetectorId": "aks-fleet-category-connectivity"
+            "overviewDetectorId": "aks-fleet-category-connectivity-issues"
         }
     ],
 
