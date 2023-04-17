@@ -20,8 +20,8 @@
         {
             "id": "aksfleetcategoryconnectivityissues",
             "name": "Connectivity Issues",
-            "description": "Find out connectivity issues related to our fleet's clusters.",
-            "keywords": [ "fleet", "aks fleet", "connectivity", "member clusters", "msi", "identity"],
+            "description": "Find out connectivity issues related to the fleet",
+            "keywords": [ "Hub & Member connectivity", "Multi-cluster networking"],
             "color": "rgb(249, 213, 180)",
             "createFlowForCategory": true,
             "chatEnabled": false,
