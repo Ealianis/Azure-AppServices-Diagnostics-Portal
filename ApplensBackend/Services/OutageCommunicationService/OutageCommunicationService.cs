@@ -18,13 +18,14 @@ namespace AppLensV3.Services
         private TimeSpan _commExpandedWindow = TimeSpan.FromDays(1);
 
         private string commsQuery = @"
+        set query_results_cache_max_age = time(1d);
         let startDate = datetime({START_TIME});
         let endDate = datetime({END_TIME});
         cluster('Icmcluster').database('ACM.Backend'). 
         GetCommunicationsBySubIdAndDateRange(@'{SUBSCRIPTION}', startDate, endDate) 
         | where CommunicationType == 'Outage'
-        | order by PublishedTime asc
         | project CommunicationId, PublishedTime, Title, RichTextMessage, Status, Severity, IncidentId, CommunicationType, ImpactedServices, ExternalIncidentId
+        | order by PublishedTime asc
         ";
 
         private string emergingIssuesQuery = @"

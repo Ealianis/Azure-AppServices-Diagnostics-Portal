@@ -367,6 +367,26 @@ export class MainComponent implements OnInit {
     }
   }
 
+  paramsToObject(entries) {
+    const result = {}
+    for(const [key, value] of entries) { // each 'entry' is a [key, value] tupple
+      result[key] = value;
+    }
+    return result;
+  }
+
+  extractQueryParams(url) {
+    try {
+      const anchor = document.createElement('a');  
+      anchor.href = url;  
+      const queryParams = new URLSearchParams(anchor.search);
+      return { url: anchor.pathname, queryParams: this.paramsToObject(queryParams)};
+    }
+    catch (err) {
+      return { url: url, queryParams: {}};
+    }
+  }
+
   onSubmit() {
     this._userSettingService.updateDefaultServiceType(this.selectedResourceType.id);
     if (!(this.caseNumber == "internal") && this.caseNumberNeededForUser && (this.selectedResourceType && this.caseNumberNeededForRP)) {
@@ -392,7 +412,6 @@ export class MainComponent implements OnInit {
       window.location.href = `https://azuresupportcenter.msftcloudes.com/caseoverview?srId=${this.resourceName}`;
     }
 
-
     this._detectorControlService.setCustomStartEnd(this._detectorControlService.startTime, this._detectorControlService.endTime);
 
     let timeParams = {
@@ -404,7 +423,20 @@ export class MainComponent implements OnInit {
       queryParams: {
         ...timeParams,
         ...!(this.caseNumber == "internal") && this.caseNumber ? { caseNumber: this.caseNumber } : {}
-      },
+      }
+    }
+
+    let targetedPathBeforeUnauthorized = localStorage.getItem('targetedPathBeforeUnauthorized');
+    if (targetedPathBeforeUnauthorized && targetedPathBeforeUnauthorized.length>0) {
+      localStorage.removeItem('targetedPathBeforeUnauthorized');
+      var extraction = this.extractQueryParams(targetedPathBeforeUnauthorized);
+      route = extraction.url;
+      //Case number should not be passed to the targeted path
+      if (extraction.queryParams.hasOwnProperty('caseNumber')) {
+        delete extraction.queryParams['caseNumber'];
+      }
+      
+      navigationExtras.queryParams = {...navigationExtras.queryParams, ...extraction.queryParams};
     }
 
     if (this.errorMessage === '') {
